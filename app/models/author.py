@@ -1,11 +1,9 @@
 from datetime import date
 from typing import Optional
-
 from sqlmodel import Field, Relationship, SQLModel
-
+from app.models.book import Book
 
 class Author(SQLModel, table=True):
-    """Modèle représentant un auteur"""
 
     __tablename__ = "authors"
 
@@ -18,5 +16,4 @@ class Author(SQLModel, table=True):
     death_date: Optional[date] = Field(default=None)
     website: Optional[str] = Field(default=None)
 
-    # Relations
     books: list["Book"] = Relationship(back_populates="author")

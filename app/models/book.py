@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Optional
-
 from sqlmodel import Field, Relationship, SQLModel
-
+from app.models.author import Author
+from app.models.loan import Loan
 
 class BookCategory(str, Enum):
 
@@ -31,7 +31,7 @@ class Book(SQLModel, table=True):
     total_copies: int = Field(gt=0)
     description: Optional[str] = Field(default=None)
     category: BookCategory = Field(default=BookCategory.AUTRE)
-    language: str = Field(max_length=2)  
+    language: str = Field(max_length=2)  # Code langue ISO
     pages: int = Field(gt=0)
     publisher: str
 
