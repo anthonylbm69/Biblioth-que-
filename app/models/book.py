@@ -22,7 +22,7 @@ class Book(SQLModel, table=True):
 
     __tablename__ = "books"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True) #fonction Field sert a ajouter des metadonnées
     title: str = Field(index=True)
     isbn: str = Field(unique=True, index=True, max_length=17)
     publication_year: int
