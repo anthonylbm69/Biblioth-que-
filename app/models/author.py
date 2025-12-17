@@ -5,6 +5,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 
 class Author(SQLModel, table=True):
+    """Modèle représentant un auteur"""
 
     __tablename__ = "authors"
 
@@ -12,9 +13,10 @@ class Author(SQLModel, table=True):
     first_name: str = Field(index=True)
     last_name: str = Field(index=True)
     birth_date: date
-    nationality: str = Field(max_length=2) 
+    nationality: str = Field(max_length=2)  # Code pays ISO
     biography: Optional[str] = Field(default=None)
     death_date: Optional[date] = Field(default=None)
     website: Optional[str] = Field(default=None)
 
+    # Relations
     books: list["Book"] = Relationship(back_populates="author")
