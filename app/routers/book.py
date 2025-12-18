@@ -8,7 +8,7 @@ from app.models.loan import Loan, LoanStatus
 from app.schemas.book import BookCreate, BookRead, BookReadWithAuthor, BookUpdate
 from app.schemas.common import MessageResponse, PaginatedResponse
 
-router = APIRouter(prefix="/books", tags=["Livres"])
+router = APIRouter(prefix="/books", tags=["Books"])
 
 @router.post("/", response_model=BookRead, status_code=201) #décorateur, fastapi ne renverra que ceux qu'il y a dans le BookRead
 def create_book(book: BookCreate, session: SessionDep): #fonction, injection de dependence avec le sessionDep

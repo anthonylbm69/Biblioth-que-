@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import func, select
-
 from app.core.database import SessionDep
 from app.core.exceptions import AuthorHasBooksException, AuthorNotFoundException
 from app.models.author import Author
@@ -8,13 +7,11 @@ from app.models.book import Book
 from app.schemas.author import AuthorCreate, AuthorRead, AuthorUpdate, AuthorWithBooks
 from app.schemas.common import MessageResponse, PaginatedResponse
 
-router = APIRouter(prefix="/authors", tags=["Auteurs"])
+router = APIRouter(prefix="/authors", tags=["Authors"])
 
 
 @router.post("/", response_model=AuthorRead, status_code=201)
 def create_author(author: AuthorCreate, session: SessionDep):
-    """Créer un nouvel auteur"""
-    # Vérifier l'unicité du nom complet
     try:
         statement = select(Author).where(
             Author.first_name == author.first_name,
@@ -46,11 +43,8 @@ def list_authors(
     sort_by: str = Query("last_name", regex="^(last_name|first_name|birth_date)$"),
     order: str = Query("asc", regex="^(asc|desc)$"),
 ):
-    """Lister tous les auteurs avec pagination et filtres"""
-    # Construction de la requête de base
     statement = select(Author)
 
-    # Filtres de recherche
     if search:
         statement = statement.where(
             (Author.first_name.ilike(f"%{search}%")) | (Author.last_name.ilike(f"%{search}%"))
@@ -59,14 +53,12 @@ def list_authors(
     if nationality:
         statement = statement.where(Author.nationality == nationality.upper())
 
-    # Tri
     sort_column = getattr(Author, sort_by)
     if order == "desc":
         statement = statement.order_by(sort_column.desc())
     else:
         statement = statement.order_by(sort_column)
 
-    # Compter le total
     count_statement = select(func.count()).select_from(statement.subquery())
     total = session.exec(count_statement).one()
 
@@ -89,12 +81,10 @@ def list_authors(
 
 @router.get("/{author_id}", response_model=AuthorWithBooks)
 def get_author(author_id: int, session: SessionDep):
-    """Récupérer les détails d'un auteur avec le nombre de livres"""
     author = session.get(Author, author_id)
     if not author:
         raise HTTPException(status_code=404, detail="Auteur non trouvé")
 
-    # Compter les livres de l'auteur
     books_count = session.exec(select(func.count()).where(Book.author_id == author_id)).one()
 
     author_dict = author.model_dump()
@@ -105,15 +95,12 @@ def get_author(author_id: int, session: SessionDep):
 
 @router.patch("/{author_id}", response_model=AuthorRead)
 def update_author(author_id: int, author_update: AuthorUpdate, session: SessionDep):
-    """Mettre à jour un auteur"""
     db_author = session.get(Author, author_id)
     if not db_author:
         raise HTTPException(status_code=404, detail="Auteur non trouvé")
 
-    # Mettre à jour uniquement les champs fournis
     update_data = author_update.model_dump(exclude_unset=True)
 
-    # Vérifier l'unicité du nom si modifié
     if "first_name" in update_data or "last_name" in update_data:
         first_name = update_data.get("first_name", db_author.first_name)
         last_name = update_data.get("last_name", db_author.last_name)
@@ -141,12 +128,10 @@ def update_author(author_id: int, author_update: AuthorUpdate, session: SessionD
 
 @router.delete("/{author_id}", response_model=MessageResponse)
 def delete_author(author_id: int, session: SessionDep):
-    """Supprimer un auteur (seulement s'il n'a pas de livres associés)"""
     db_author = session.get(Author, author_id)
     if not db_author:
         raise HTTPException(status_code=404, detail="Auteur non trouvé")
 
-    # Vérifier qu'il n'a pas de livres associés
     books_count = session.exec(select(func.count()).where(Book.author_id == author_id)).one()
 
     if books_count > 0:

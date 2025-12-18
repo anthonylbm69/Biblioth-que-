@@ -11,7 +11,7 @@ class Author(SQLModel, table=True):
     first_name: str = Field(index=True)
     last_name: str = Field(index=True)
     birth_date: date
-    nationality: str = Field(max_length=2)  # Code pays ISO
+    nationality: str = Field(max_length=2)  
     biography: Optional[str] = Field(default=None)
     death_date: Optional[date] = Field(default=None)
     website: Optional[str] = Field(default=None)
