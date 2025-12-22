@@ -162,3 +162,98 @@ def list_loans(
         page_size=page_size,
         total_pages=total_pages,
     )
+
+@router.get("/{loan_id}", response_model=LoanReadWithDetails)
+def get_loan(loan_id: int, session: SessionDep):
+    """Récupérer les détails d'un emprunt"""
+    loan = session.get(Loan, loan_id)
+    if not loan:
+        raise HTTPException(status_code=404, detail="Emprunt non trouvé")
+
+    update_loan_status(loan)
+    session.add(loan)
+    session.commit()
+
+    book = session.get(Book, loan.book_id)
+    book_title = book.title if book else "Inconnu"
+
+    penalty = 0.0
+    days_late = 0
+    if loan.return_date:
+        penalty, days_late = calculate_penalty(loan.due_date, loan.return_date)
+    elif loan.status == LoanStatus.LATE:
+        penalty, days_late = calculate_penalty(loan.due_date, datetime.now())
+
+    loan_dict = loan.model_dump()
+    loan_dict["book_title"] = book_title
+    loan_dict["penalty"] = penalty
+    loan_dict["days_late"] = days_late
+
+    return LoanReadWithDetails(**loan_dict)
+
+
+@router.post("/{loan_id}/return", response_model=LoanReadWithDetails)
+def return_loan(loan_id: int, return_data: LoanReturn, session: SessionDep):
+    loan = session.get(Loan, loan_id)
+    if not loan:
+        raise HTTPException(status_code=404, detail="Emprunt non trouvé")
+
+    if loan.return_date:
+        raise HTTPException(status_code=400, detail="Ce livre a déjà été retourné")
+
+    book = session.get(Book, loan.book_id)
+    if not book:
+        raise HTTPException(status_code=404, detail="Livre non trouvé")
+
+    return_date = return_data.return_date or datetime.now()
+    loan.return_date = return_date
+    loan.status = LoanStatus.RETURNED
+    if return_data.comments:
+        loan.comments = (
+            f"{loan.comments}\n{return_data.comments}" if loan.comments else return_data.comments
+        )
+
+    book.available_copies += 1
+
+    session.add(loan)
+    session.add(book)
+    session.commit()
+    session.refresh(loan)
+
+    penalty, days_late = calculate_penalty(loan.due_date, return_date)
+
+    loan_dict = loan.model_dump()
+    loan_dict["book_title"] = book.title
+    loan_dict["penalty"] = penalty
+    loan_dict["days_late"] = days_late
+
+    return LoanReadWithDetails(**loan_dict)
+
+
+@router.post("/{loan_id}/renew", response_model=LoanRead)
+def renew_loan(loan_id: int, session: SessionDep):
+    """Renouveler un emprunt (prolonger de 1 jours)"""
+    loan = session.get(Loan, loan_id)
+    if not loan:
+        raise HTTPException(status_code=404, detail="Emprunt non trouvé")
+
+    if loan.return_date:
+        raise HTTPException(
+            status_code=400, detail="Impossible de renouveler un livre déjà retourné"
+        )
+
+    if loan.renewed:
+        raise HTTPException(
+            status_code=400, detail="Cet emprunt a déjà été renouvelé (maximum 1 fois)"
+        )
+
+    loan.due_date += timedelta(days=settings.LOAN_DURATION_DAYS)
+    loan.renewed = True
+
+    update_loan_status(loan)
+
+    session.add(loan)
+    session.commit()
+    session.refresh(loan)
+
+    return loan

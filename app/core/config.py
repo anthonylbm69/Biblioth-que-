@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./database.db"
 
     MAX_LOANS_PER_USER: int = 5
-    LOAN_DURATION_DAYS: int = 14
+    LOAN_DURATION_DAYS: int = 1
     PENALTY_RATE_PER_DAY: float = 0.50
     MAX_PENALTY: float = 50.0
 

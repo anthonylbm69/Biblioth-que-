@@ -48,8 +48,8 @@ app.add_middleware(
 # Inclure les routers
 app.include_router(author.router)
 app.include_router(book.router)
-"""app.include_router(loan.router)
-app.include_router(loanHistory.router)"""
+app.include_router(loan.router)
+"""app.include_router(loanHistory.router)"""
 
 
 @app.get("/", tags=["Root"])
