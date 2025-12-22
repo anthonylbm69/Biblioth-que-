@@ -146,3 +146,19 @@ def delete_author(author_id: int, session: SessionDep):
         message="Auteur supprimé avec succès",
         detail=f"L'auteur {db_author.first_name} {db_author.last_name} a été supprimé",
     )
+
+@router.get("/search/name", response_model=list[AuthorRead])
+def search_author_by_name(
+    name: str = Query(..., min_length=2, description="Prénom ou nom à rechercher"),
+    session: SessionDep = None
+):
+    statement = select(Author).where(
+        (Author.first_name.ilike(f"%{name}%")) | (Author.last_name.ilike(f"%{name}%"))
+    )
+    
+    results = session.exec(statement).all()
+    
+    if not results:
+        raise HTTPException(status_code=404, detail="Aucun auteur trouvé avec ce nom")
+        
+    return results
