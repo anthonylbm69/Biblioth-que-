@@ -102,7 +102,7 @@ def delete_book(book_id: int, session: SessionDep):
     session.commit()
     return MessageResponse(message="Livre supprimé")
 
-@router.get("/search-isbn", response_model=BookReadWithAuthor)
+@router.get("/search-by-isbn", response_model=BookReadWithAuthor)
 def get_book_by_isbn(
     isbn: str = Query(..., description="L'ISBN exact du livre"),
     session: SessionDep = None
@@ -157,3 +157,33 @@ def search_books_by_year(
         page_size=page_size, 
         total_pages=(total + page_size - 1) // page_size
     )
+
+@router.get("/search-books-by-iso/{iso}", response_model=list[BookReadWithAuthor])
+def get_books_by_language(
+    iso: str, 
+    session: SessionDep
+):
+    statement = (
+        select(Book, Author)
+        .join(Author, Book.author_id == Author.id)
+        .where(Book.language.ilike(iso.strip()))
+    )
+    
+    results = session.exec(statement).all()
+
+    if not results:
+        raise HTTPException(
+            status_code=404, 
+            detail=f"Aucun livre trouvé pour la langue : {iso}"
+        )
+
+    books_with_authors = []
+    for book, author in results:
+        loans_count = session.exec(select(func.count()).where(Loan.book_id == book.id)).one()
+        
+        book_dict = book.model_dump()
+        book_dict["author_name"] = f"{author.first_name} {author.last_name}"
+        book_dict["loans_count"] = loans_count
+        books_with_authors.append(BookReadWithAuthor(**book_dict))
+
+    return books_with_authors
