@@ -1,7 +1,10 @@
 from typing import Optional
+
 from sqlmodel import Field, Relationship, SQLModel
+
 from app.models.book import Book
 from app.models.loan import Loan
+
 
 class LoanHistory(SQLModel, table=True):
 

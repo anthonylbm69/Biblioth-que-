@@ -1,7 +1,9 @@
 from datetime import datetime
 from enum import Enum
 from typing import Optional
+
 from sqlmodel import Field, Relationship, SQLModel
+
 
 class LoanStatus(str, Enum):
 

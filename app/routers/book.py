@@ -1,6 +1,8 @@
 from typing import Optional
+
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import func, or_, select
+
 from app.core.database import SessionDep
 from app.models.author import Author
 from app.models.book import Book, BookCategory

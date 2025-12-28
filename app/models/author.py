@@ -1,7 +1,10 @@
 from datetime import date
 from typing import Optional
+
 from sqlmodel import Field, Relationship, SQLModel
+
 from app.models.book import Book
+
 
 class Author(SQLModel, table=True):
 

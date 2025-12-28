@@ -9,7 +9,13 @@ from app.core.database import SessionDep
 from app.models.book import Book
 from app.models.loan import Loan, LoanStatus
 from app.schemas.common import MessageResponse, PaginatedResponse
-from app.schemas.loan import LoanCreate, LoanRead, LoanReadWithDetails, LoanRenew, LoanReturn
+from app.schemas.loan import (
+    LoanCreate,
+    LoanRead,
+    LoanReadWithDetails,
+    LoanRenew,
+    LoanReturn,
+)
 
 router = APIRouter(prefix="/loans", tags=["Loan"])
 

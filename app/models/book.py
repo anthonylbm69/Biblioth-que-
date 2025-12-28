@@ -1,7 +1,10 @@
 from enum import Enum
 from typing import Optional
+
 from sqlmodel import Field, Relationship, SQLModel
+
 from app.models.loan import Loan
+
 
 class BookCategory(str, Enum):
 
