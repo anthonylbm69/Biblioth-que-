@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, HttpUrl, field_validator
+from pydantic import BaseModel, field_validator
 
 from app.schemas.validators import validate_birth_date
 
@@ -56,7 +56,9 @@ class AuthorUpdate(BaseModel):
         """Valide que la nationalité est un code pays ISO de 2 lettres"""
         if v is not None:
             if len(v) != 2 or not v.isalpha():
-                raise ValueError("La nationalité doit être un code pays ISO de 2 lettres")
+                raise ValueError(
+                    "La nationalité doit être un code pays ISO de 2 lettres"
+                )
             return v.upper()
         return v
 

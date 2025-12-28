@@ -1,12 +1,9 @@
 from fastapi import Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import ValidationError
 
 from app.core.exceptions import (
-    AuthorHasBooksException,
     AuthorNotFoundException,
-    BookHasActiveLoansException,
     BookNotAvailableException,
     BookNotFoundException,
     InvalidISBNException,
@@ -21,7 +18,9 @@ async def library_exception_handler(request: Request, exc: LibraryException):
     status_code = status.HTTP_400_BAD_REQUEST
 
     # Déterminer le code de statut approprié
-    if isinstance(exc, (BookNotFoundException, AuthorNotFoundException, LoanNotFoundException)):
+    if isinstance(
+        exc, (BookNotFoundException, AuthorNotFoundException, LoanNotFoundException)
+    ):
         status_code = status.HTTP_404_NOT_FOUND
     elif isinstance(exc, (BookNotAvailableException, LoanLimitExceededException)):
         status_code = status.HTTP_400_BAD_REQUEST

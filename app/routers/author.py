@@ -2,7 +2,6 @@ from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import func, select
 
 from app.core.database import SessionDep
-from app.core.exceptions import AuthorHasBooksException, AuthorNotFoundException
 from app.models.author import Author
 from app.models.book import Book
 from app.schemas.author import AuthorCreate, AuthorRead, AuthorUpdate, AuthorWithBooks
@@ -22,7 +21,8 @@ def create_author(author: AuthorCreate, session: SessionDep):
         if existing:
             raise HTTPException(
                 status_code=400,
-                detail=f"Un auteur avec le nom {author.first_name} {author.last_name} existe déjà",
+                detail=f"Un auteur avec le nom {author.first_name}"
+                + f" {author.last_name} existe déjà",
             )
 
         db_author = Author.model_validate(author)
@@ -48,7 +48,8 @@ def list_authors(
 
     if search:
         statement = statement.where(
-            (Author.first_name.ilike(f"%{search}%")) | (Author.last_name.ilike(f"%{search}%"))
+            (Author.first_name.ilike(f"%{search}%"))
+            | (Author.last_name.ilike(f"%{search}%"))
         )
 
     if nationality:
@@ -86,7 +87,9 @@ def get_author(author_id: int, session: SessionDep):
     if not author:
         raise HTTPException(status_code=404, detail="Auteur non trouvé")
 
-    books_count = session.exec(select(func.count()).where(Book.author_id == author_id)).one()
+    books_count = session.exec(
+        select(func.count()).where(Book.author_id == author_id)
+    ).one()
 
     author_dict = author.model_dump()
     author_dict["books_count"] = books_count
@@ -133,12 +136,15 @@ def delete_author(author_id: int, session: SessionDep):
     if not db_author:
         raise HTTPException(status_code=404, detail="Auteur non trouvé")
 
-    books_count = session.exec(select(func.count()).where(Book.author_id == author_id)).one()
+    books_count = session.exec(
+        select(func.count()).where(Book.author_id == author_id)
+    ).one()
 
     if books_count > 0:
         raise HTTPException(
             status_code=400,
-            detail=f"Impossible de supprimer l'auteur car il a {books_count} livre(s) associé(s)",
+            detail=f"Impossible de supprimer l'auteur car il a {books_count}"
+            + "livre(s) associé(s)",
         )
 
     session.delete(db_author)
@@ -148,18 +154,19 @@ def delete_author(author_id: int, session: SessionDep):
         detail=f"L'auteur {db_author.first_name} {db_author.last_name} a été supprimé",
     )
 
+
 @router.get("/search/name", response_model=list[AuthorRead])
 def search_author_by_name(
     name: str = Query(..., min_length=2, description="Prénom ou nom à rechercher"),
-    session: SessionDep = None
+    session: SessionDep = None,
 ):
     statement = select(Author).where(
         (Author.first_name.ilike(f"%{name}%")) | (Author.last_name.ilike(f"%{name}%"))
     )
-    
+
     results = session.exec(statement).all()
-    
+
     if not results:
         raise HTTPException(status_code=404, detail="Aucun auteur trouvé avec ce nom")
-        
+
     return results

@@ -54,7 +54,9 @@ def validate_publication_year(year: int) -> int:
     """
     current_year = datetime.now().year
     if year < 1450 or year > current_year:
-        raise ValueError(f"L'année de publication doit être entre 1450 et {current_year}")
+        raise ValueError(
+            f"L'année de publication doit être entre 1450 et {current_year}"
+        )
     return year
 
 
@@ -99,6 +101,8 @@ def validate_available_copies(available: int, total: int) -> int:
         raise ValueError("Le nombre d'exemplaires disponibles ne peut pas être négatif")
 
     if available > total:
-        raise ValueError("Le nombre d'exemplaires disponibles ne peut pas dépasser le total")
+        raise ValueError(
+            "Le nombre d'exemplaires disponibles ne peut pas dépasser le total"
+        )
 
     return available

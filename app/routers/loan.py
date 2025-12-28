@@ -8,12 +8,11 @@ from app.core.config import settings
 from app.core.database import SessionDep
 from app.models.book import Book
 from app.models.loan import Loan, LoanStatus
-from app.schemas.common import MessageResponse, PaginatedResponse
+from app.schemas.common import PaginatedResponse
 from app.schemas.loan import (
     LoanCreate,
     LoanRead,
     LoanReadWithDetails,
-    LoanRenew,
     LoanReturn,
 )
 
@@ -72,7 +71,8 @@ def create_loan(loan: LoanCreate, session: SessionDep):
     if active_loans >= settings.MAX_LOANS_PER_USER:
         raise HTTPException(
             status_code=400,
-            detail=f"Limite d'emprunts atteinte ({settings.MAX_LOANS_PER_USER} maximum)",
+            detail=f"Limite d'emprunts atteinte ({settings.MAX_LOANS_PER_USER}"
+            + " maximum)",
         )
 
     now = datetime.now()
@@ -169,6 +169,7 @@ def list_loans(
         total_pages=total_pages,
     )
 
+
 @router.get("/{loan_id}", response_model=LoanReadWithDetails)
 def get_loan(loan_id: int, session: SessionDep):
     """Récupérer les détails d'un emprunt"""
@@ -216,7 +217,9 @@ def return_loan(loan_id: int, return_data: LoanReturn, session: SessionDep):
     loan.status = LoanStatus.RETURNED
     if return_data.comments:
         loan.comments = (
-            f"{loan.comments}\n{return_data.comments}" if loan.comments else return_data.comments
+            f"{loan.comments}\n{return_data.comments}"
+            if loan.comments
+            else return_data.comments
         )
 
     book.available_copies += 1

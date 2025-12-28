@@ -1,44 +1,30 @@
 [tool.black]
 line-length = 88
-target-version = ["py311"]  # adapte si tu utilises une autre version (e.g., "py310")
+target-version = ["py311"]
 skip-string-normalization = false
 
 [tool.isort]
 profile = "black"
 
-
-[flake8]
-# On aligne la longueur de ligne sur votre config Black
-max-line-length = 88
-
-# E203: espace avant ':' (non compatible avec Black)
-# W503: saut de ligne avant opérateur binaire (non compatible avec Black)
-extend-ignore = E203, W503
-
-# Dossiers à ignorer
-exclude = .git,__pycache__,docs/source/conf.py,old,build,dist,venv
-
-
 [tool.mypy]
 python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = true  # Force à typer ses fonctions
-ignore_missing_imports = true # Évite les erreurs si une lib externe n'est pas typée
+disallow_untyped_defs = true
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = "*.tests.*"
-disallow_untyped_defs = false # On peut être plus souple sur les tests
+disallow_untyped_defs = false
 
 [tool.pylint."MESSAGES CONTROL"]
-# On désactive certaines règles qui font doublon avec Black ou qui sont trop strictes
 disable = [
-    "C0114", # Missing module docstring
-    "C0115", # Missing class docstring
-    "C0116", # Missing function docstring
-    "R0903", # Too few public methods
-    "W0511", # TODOs
+    "C0114",
+    "C0115",
+    "C0116",
+    "R0903",
+    "W0511",
 ]
 
 [tool.pylint.FORMAT]
-max-line-length = 88 # On reste aligné avec Black
+max-line-length = 88

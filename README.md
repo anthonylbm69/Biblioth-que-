@@ -90,3 +90,25 @@ app/
 └── main.py         # Point d'entrée de l'application
 
 ```
+
+## 🛠️ Qualité du Code & Standards
+
+Le projet utilise plusieurs outils pour garantir un code propre, typé et respectant les standards de l'industrie :
+
+* **[Black](https://github.com/psf/black)** : Formateur de code déterministe (style PEP8).
+* **[isort](https://pycqa.github.io/isort/)** : Tri automatique des imports par catégorie et ordre alphabétique.
+* **[Flake8](https://flake8.pycqa.org/)** : Analyse syntaxique et vérification des erreurs de style.
+* **[Mypy](https://mypy-lang.org/)** : Vérification statique des types pour éviter les bugs logiques.
+* **[Pylint](https://pylint.readthedocs.io/)** : Analyse approfondie de la qualité du code avec notation.
+
+### Lancer les vérifications
+
+```bash
+# Formater le code
+black app/
+isort app/
+
+# Vérifier la qualité et les types
+flake8 app/
+mypy app/
+pylint app/

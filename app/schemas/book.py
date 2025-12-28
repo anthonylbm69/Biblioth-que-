@@ -10,7 +10,7 @@ from app.schemas.validators import (
 )
 
 
-#class parente
+# class parente
 class BookBase(BaseModel):
     title: str
     isbn: str
@@ -61,9 +61,10 @@ class BookBase(BaseModel):
         return self
 
 
-#class qui gére ceux que envoie l'utilisateur à l'api
+# class qui gére ceux que envoie l'utilisateur à l'api
 class BookCreate(BookBase):
     pass
+
 
 class BookUpdate(BaseModel):
     title: Optional[str] = None
@@ -78,7 +79,7 @@ class BookUpdate(BaseModel):
     pages: Optional[int] = None
     publisher: Optional[str] = None
 
-    #vérification code isbn
+    # vérification code isbn
     @field_validator("isbn")
     @classmethod
     def validate_isbn_field(cls, v: Optional[str]) -> Optional[str]:
@@ -86,7 +87,7 @@ class BookUpdate(BaseModel):
             return validate_isbn13(v)
         return v
 
-    #vérification si la date est valide ou pas
+    # vérification si la date est valide ou pas
     @field_validator("publication_year")
     @classmethod
     def validate_year_field(cls, v: Optional[int]) -> Optional[int]:
@@ -94,7 +95,7 @@ class BookUpdate(BaseModel):
             return validate_publication_year(v)
         return v
 
-    #vérification du ISO
+    # vérification du ISO
     @field_validator("language")
     @classmethod
     def validate_language(cls, v: Optional[str]) -> Optional[str]:
@@ -103,14 +104,15 @@ class BookUpdate(BaseModel):
                 raise ValueError("La langue doit être un code ISO de 2 lettres")
             return v.lower()
         return v
-    
-    
-#class qui renvoie ce que donne l'api a l'utilisateur   
+
+
+# class qui renvoie ce que donne l'api a l'utilisateur
 class BookRead(BookBase):
     id: int
 
     class Config:
         from_attributes = True
+
 
 class BookReadWithAuthor(BookRead):
     author_name: str = ""

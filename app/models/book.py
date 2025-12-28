@@ -1,13 +1,13 @@
 from enum import Enum
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.loan import Loan
-from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.models.author import Author
+
 
 class BookCategory(str, Enum):
 
@@ -27,7 +27,9 @@ class Book(SQLModel, table=True):
 
     __tablename__ = "books"
 
-    id: Optional[int] = Field(default=None, primary_key=True) #fonction Field sert a ajouter des metadonnées
+    id: Optional[int] = Field(
+        default=None, primary_key=True
+    )  # fonction Field sert a ajouter des metadonnées
     title: str = Field(index=True)
     isbn: str = Field(unique=True, index=True, max_length=17)
     publication_year: int
