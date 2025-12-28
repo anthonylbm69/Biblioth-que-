@@ -4,7 +4,10 @@ from typing import Optional
 from sqlmodel import Field, Relationship, SQLModel
 
 from app.models.loan import Loan
+from typing import TYPE_CHECKING
 
+if TYPE_CHECKING:
+    from app.models.author import Author
 
 class BookCategory(str, Enum):
 
